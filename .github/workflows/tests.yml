@@ -1,0 +1,43 @@
+name: Tests
+
+on: [push, pull_request]
+
+defaults:
+    run:
+        shell: bash
+
+jobs:
+    build:
+        name: ${{ matrix.platform.name }}
+        runs-on: ${{ matrix.platform.os }}
+
+        strategy:
+            fail-fast: false
+            matrix:
+                platform:
+                    - { name: Windows VS2022, os: windows-2022 }
+                    - { name: Linux GCC, os: ubuntu-latest }
+                    - { name: macOS, os: macos-latest }
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install Linux Dependencies
+              if: runner.os == 'Linux'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    build-essential git make pkg-config cmake \
+                    libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev \
+                    libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev \
+                    libwayland-dev libxkbcommon-dev libdrm-dev libgbm-dev \
+                    libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev \
+                    libdbus-1-dev libibus-1.0-dev libudev-dev \
+                    libpipewire-0.3-dev libdecor-0-dev
+
+            - name: Configure
+              run: cmake -B build ${{matrix.platform.flags}} -DCMAKE_BUILD_TYPE=Release
+
+            - name: Build
+              run: cmake --build build --config Release
