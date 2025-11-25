@@ -3,6 +3,7 @@
 
 bool Connect4_Init_Dependencies() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+        // The error is inserted at %s
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return false;
     }
@@ -18,58 +19,67 @@ void Connect4_Quit_Dependencies() {
     SDL_Quit();
 }
 
-Connect4* Connect4_create(uint8_t boardWidth, uint8_t boardHeight) {
-    Connect4* connect4 = calloc(1, sizeof(Connect4));
-    if (!connect4) {
+C4_Game* C4_Game_Create(uint8_t boardWidth, uint8_t boardHeight) {
+    C4_Game* game = calloc(1, sizeof(C4_Game));
+    if (!game) {
         // Out of memory
         return NULL;
     }
-    connect4->window = SDL_CreateWindow("Connect4", 1280, 720, 0);
-    if (!connect4->window) {
-        Connect4_destroy(connect4);
+    game->window = SDL_CreateWindow("C4_Game", 1280, 720, 0);
+    if (!game->window) {
+        C4_Game_Destroy(game);
         return NULL;
     }
-    connect4->renderer = SDL_CreateRenderer(connect4->window, NULL);
-    if (!connect4->renderer) {
-        Connect4_destroy(connect4);
+    game->renderer = SDL_CreateRenderer(game->window, NULL);
+    if (!game->renderer) {
+        C4_Game_Destroy(game);
         return NULL;
     }
-    SDL_SetRenderVSync(connect4->renderer, 1);
-    connect4->font_regular = TTF_OpenFont("./assets/fonts/Monocraft.ttf", 32);
-    if (!connect4->font_regular) {
-        Connect4_destroy(connect4);
+    SDL_SetRenderVSync(game->renderer, 1);
+    game->font_regular = TTF_OpenFont("./assets/fonts/Monocraft.ttf", 32);
+    if (!game->font_regular) {
+        C4_Game_Destroy(game);
         return NULL;
     }
-    connect4->font_bold = TTF_OpenFont("./assets/fonts/Monocraft-Bold.ttf", 32);
-    if (!connect4->font_bold) {
-        Connect4_destroy(connect4);
+    game->font_bold = TTF_OpenFont("./assets/fonts/Monocraft-Bold.ttf", 32);
+    if (!game->font_bold) {
+        C4_Game_Destroy(game);
         return NULL;
     }
-    connect4->board = Board_create(boardWidth, boardHeight);
-    return connect4;
+    game->board = C4_Board_Create(boardWidth, boardHeight);
+    game->testText = C4_TextUIElement_Create(game->renderer, "", game->font_regular, (SDL_Color){255, 255, 255, 255}, 800.f);
+    return game;
 }
 
-void Connect4_destroy(Connect4* connect4) {
-    if (!connect4) {
+void C4_Game_Destroy(C4_Game* game) {
+    if (!game) {
         return;
     }
-    if (connect4->font_regular) {
-        TTF_CloseFont(connect4->font_regular);
+    C4_Board_Destroy(&game->board);
+    if (game->testText) {
+        C4_TextUIElement_Destroy(game->testText);
     }
-    if (connect4->font_bold) {
-        TTF_CloseFont(connect4->font_bold);
+    if (game->font_regular) {
+        TTF_CloseFont(game->font_regular);
     }
-    if (connect4->renderer) {
-        SDL_DestroyRenderer(connect4->renderer);
+    if (game->font_bold) {
+        TTF_CloseFont(game->font_bold);
     }
-    if (connect4->window) {
-        SDL_DestroyWindow(connect4->window);
+    if (game->renderer) {
+        SDL_DestroyRenderer(game->renderer);
     }
-    free(connect4);
+    if (game->window) {
+        SDL_DestroyWindow(game->window);
+    }
+    free(game);
 }
 
-void Connect4_run(Connect4* connect4) {
-    Board_set_slot(&connect4->board, 0, connect4->board.height - 1, Player1);
+void C4_Game_Run(C4_Game* game) {
+    C4_Board_SetSlot(&game->board, 0, game->board.height - 1, Player1);
+    char tempBuffer[100];
+    C4_Board_UpdateTestStr(&game->board, tempBuffer, 100);
+    C4_TextUIElement_ChangeStr(game->testText, tempBuffer);
+    C4_TextUIElement_Refresh(game->testText, game->renderer);
     bool running = true;
     SDL_Event event;
     while (running) {
@@ -78,22 +88,9 @@ void Connect4_run(Connect4* connect4) {
                 running = false;
             }
         }
-        Board_update_test_string(&connect4->board, connect4->testStr);
-        SDL_SetRenderDrawColor(connect4->renderer, 0, 0, 0, 255);
-        SDL_RenderClear(connect4->renderer);
-        Connect4_drawTestStr(connect4);
-        SDL_RenderPresent(connect4->renderer);
-    }
-}
-
-void Connect4_drawTestStr(Connect4* connect4) {
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(connect4->font_regular, connect4->testStr, 0, white, 800);  
-    if (textSurface) {
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(connect4->renderer, textSurface);
-        SDL_FRect destRect = {50, 50, (float)textSurface->w, (float)textSurface->h};
-        SDL_RenderTexture(connect4->renderer, textTexture, NULL, &destRect);
-        SDL_DestroyTexture(textTexture);
-        SDL_DestroySurface(textSurface);
+        SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
+        SDL_RenderClear(game->renderer);
+        C4_TextUIElement_Draw(game->testText, game->renderer);
+        SDL_RenderPresent(game->renderer);
     }
 }

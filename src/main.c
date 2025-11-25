@@ -7,10 +7,10 @@ int main(int argc, char *argv[]) {
     if (!Connect4_Init_Dependencies()) {
         return 1;
     }
-    Connect4* connect4 = Connect4_create(7, 6);
+    C4_Game* connect4 = C4_Game_Create(7, 6);
     if (connect4) {
-        Connect4_run(connect4);
-        Connect4_destroy(connect4);
+        C4_Game_Run(connect4);
+        C4_Game_Destroy(connect4);
     }
     Connect4_Quit_Dependencies();
     return 0;

@@ -12,13 +12,13 @@ typedef struct {
     uint8_t width;
     uint8_t height;
     SlotState* cells;
-} Board;
+} C4_Board;
 
-Board Board_create(uint8_t width, uint8_t height);
-void Board_destroy(Board* board);
-SlotState Board_get_slot(Board* board, uint8_t x, uint8_t y);
-bool Board_set_slot(Board* board, uint8_t x, uint8_t y, SlotState state);
+C4_Board C4_Board_Create(uint8_t width, uint8_t height);
+void C4_Board_Destroy(C4_Board* board);
+SlotState C4_Board_GetSlot(C4_Board* board, uint8_t x, uint8_t y);
+bool C4_Board_SetSlot(C4_Board* board, uint8_t x, uint8_t y, SlotState state);
 // Returns true if valid move was made
-bool Board_do_move(Board* board, uint8_t inColumn, SlotState player);
-void Board_update_test_string(Board* board, char* testStr);
-SlotState Board_get_winner(Board* board);
+bool C4_Board_DoMove(C4_Board* board, uint8_t inColumn, SlotState player);
+void C4_Board_UpdateTestStr(C4_Board* board, char* buffer, size_t bufferSize);
+SlotState C4_Board_GetWinner(C4_Board* board);

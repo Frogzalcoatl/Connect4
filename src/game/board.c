@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "Connect4/game/board.h"
 
-Board Board_create(uint8_t width, uint8_t height) {
-    Board newBoard;
+C4_Board C4_Board_Create(uint8_t width, uint8_t height) {
+    C4_Board newBoard;
     newBoard.width = width;
     newBoard.height = height;
     // Put cells on the heap to support any width/height
@@ -12,7 +12,7 @@ Board Board_create(uint8_t width, uint8_t height) {
     return newBoard;
 }
 
-void Board_destroy(Board* board) {
+void C4_Board_Destroy(C4_Board* board) {
     if (board->cells != NULL) {
         // must free the cells directly since theyre on the heap
         free(board->cells);
@@ -22,14 +22,14 @@ void Board_destroy(Board* board) {
     }
 }
 
-SlotState Board_get_slot(Board* board, uint8_t x, uint8_t y) {
+SlotState C4_Board_GetSlot(C4_Board* board, uint8_t x, uint8_t y) {
     if (x >= board->width || y >= board->height) {
         return Empty;
     }
     return board->cells[board->width * y + x];
 }
 
-bool Board_set_slot(Board* board, uint8_t x, uint8_t y, SlotState state) {
+bool C4_Board_SetSlot(C4_Board* board, uint8_t x, uint8_t y, SlotState state) {
     if (x >= board->width || y >= board->height) {
         return false;
     }
@@ -37,7 +37,7 @@ bool Board_set_slot(Board* board, uint8_t x, uint8_t y, SlotState state) {
     return true;
 }
 
-bool Board_do_move(Board* board, uint8_t inColumn, SlotState player) {
+bool C4_Board_DoMove(C4_Board* board, uint8_t inColumn, SlotState player) {
     if (player == Empty || inColumn >= board->width) {
         return false;
     }
@@ -45,7 +45,7 @@ bool Board_do_move(Board* board, uint8_t inColumn, SlotState player) {
     if (board->cells[inColumn] != Empty) {
         return false;
     }
-    for (size_t row = board->height; row != SIZE_MAX; row--) {
+    for (size_t row = board->height - 1; row != SIZE_MAX; row--) {
         if (board->cells[row * board->width + inColumn] == Empty) {
             board->cells[row * board->width + inColumn] = player;
             return true;
@@ -54,12 +54,13 @@ bool Board_do_move(Board* board, uint8_t inColumn, SlotState player) {
     return false;
 }
 
-SlotState Board_get_winner(Board* board) {
+SlotState C4_Board_GetWinner(C4_Board* board) {
     // Ill implement this later wanna try the test string thing
     return Empty;
 }
 
-char get_char_for_state(SlotState state) {
+// Static prevents this function from being global
+static char get_char_for_state(SlotState state) {
     switch (state) {
         case Player1: return 'X';
         case Player2: return 'O';
@@ -68,11 +69,15 @@ char get_char_for_state(SlotState state) {
     }
 }
 
-void Board_update_test_string(Board* board, char* buffer) {
+void C4_Board_UpdateTestStr(C4_Board* board, char* buffer, size_t bufferSize) {
+    size_t amountNeeded = board->width * board->height + board->height + 1;
+    if (amountNeeded > bufferSize) {
+        return;
+    }
     size_t i = 0;
     for (size_t y = 0; y < board->height; y++) {
         for (size_t x = 0; x < board->width; x++) {
-            SlotState state = Board_get_slot(board, x, y);
+            SlotState state = C4_Board_GetSlot(board, x, y);
             buffer[i] = get_char_for_state(state);
             i++;
         }
