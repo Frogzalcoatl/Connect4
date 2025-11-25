@@ -3,11 +3,11 @@
 #include <string.h>
 
 C4_TextUIElement* C4_TextUIElement_Create(SDL_Renderer* renderer, const char* str, TTF_Font* font, SDL_Color color, float wrapWidth) {
-    C4_TextUIElement* element = calloc(1, sizeof(C4_TextUIElement));
-    if (!element) {
+    if (!font) {
         return NULL;
     }
-    if (!font) {
+    C4_TextUIElement* element = calloc(1, sizeof(C4_TextUIElement));
+    if (!element) {
         return NULL;
     }
     element->font = font;

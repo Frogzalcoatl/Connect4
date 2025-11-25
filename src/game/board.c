@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "Connect4/game/board.h"
+#include "Connect4/game/random.h"
 
 C4_Board C4_Board_Create(uint8_t width, uint8_t height) {
     C4_Board newBoard;
@@ -9,6 +10,8 @@ C4_Board C4_Board_Create(uint8_t width, uint8_t height) {
     // If cells were on the stack, I would have to set a max array size
     // Would be wasteful if i set the max to 100x100 for example but only used 6x7.
     newBoard.cells = calloc(width * height, sizeof(SlotState));
+    // Randomly select either player 1 or 2
+    newBoard.currentPlayer = C4_GetRandomInt(1, 2);
     return newBoard;
 }
 
@@ -37,8 +40,16 @@ bool C4_Board_SetSlot(C4_Board* board, uint8_t x, uint8_t y, SlotState state) {
     return true;
 }
 
-bool C4_Board_DoMove(C4_Board* board, uint8_t inColumn, SlotState player) {
-    if (player == Empty || inColumn >= board->width) {
+static void C4_Board_SwapCurrentPlayer(C4_Board* board) {
+    if (board->currentPlayer == Player1) {
+        board->currentPlayer = Player2;
+    } else {
+        board->currentPlayer = Player1;
+    }
+}
+
+bool C4_Board_DoMove(C4_Board* board, uint8_t inColumn) {
+    if (board->currentPlayer == Empty || inColumn >= board->width) {
         return false;
     }
     // If column is full returns false
@@ -47,7 +58,8 @@ bool C4_Board_DoMove(C4_Board* board, uint8_t inColumn, SlotState player) {
     }
     for (size_t row = board->height - 1; row != SIZE_MAX; row--) {
         if (board->cells[row * board->width + inColumn] == Empty) {
-            board->cells[row * board->width + inColumn] = player;
+            board->cells[row * board->width + inColumn] = board->currentPlayer;
+            C4_Board_SwapCurrentPlayer(board);
             return true;
         }
     }

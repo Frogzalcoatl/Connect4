@@ -66,7 +66,9 @@ set(SOURCES
     src/main.c
     src/connect4.c
     src/game/board.c
+    src/game/random.c
     src/ui/text_element.c
+    src/ui/screens/game.c
 )
 
 if(WIN32)

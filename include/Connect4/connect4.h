@@ -3,17 +3,25 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "Connect4/game/board.h"
 #include "Connect4/ui/text_element.h"
+#include "Connect4/ui/screens/game.h"
 
 bool Connect4_Init_Dependencies();
 void Connect4_Quit_Dependencies();
 
+typedef enum {
+    MenuScreen,
+    GameScreen,
+    SettingsScreen
+} ScreenType;
+
 typedef struct {
-    C4_Board board;
     SDL_Window* window;
     SDL_Renderer* renderer;
-    TTF_Font* font_regular;
-    TTF_Font* font_bold;
-    C4_TextUIElement* testText;
+    TTF_Font* fontRegular;
+    TTF_Font* fontBold;
+    C4_Board board;
+    C4_GameScreen* gameScreen;
+    ScreenType currentScreen;
 } C4_Game;
 
 C4_Game* C4_Game_Create(uint8_t boardWidth, uint8_t boardHeight);
