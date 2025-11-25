@@ -1,4 +1,5 @@
 #include "Connect4/connect4.h"
+#include <stdlib.h>
 
 bool Connect4_Init_Dependencies() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
@@ -33,6 +34,7 @@ Connect4* Connect4_create(uint8_t boardWidth, uint8_t boardHeight) {
         Connect4_destroy(connect4);
         return NULL;
     }
+    SDL_SetRenderVSync(connect4->renderer, 1);
     connect4->font_regular = TTF_OpenFont("./assets/fonts/Monocraft.ttf", 32);
     if (!connect4->font_regular) {
         Connect4_destroy(connect4);
