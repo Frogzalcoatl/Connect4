@@ -1,4 +1,5 @@
 #include "Connect4/ui/cursorManager.h"
+#include <stddef.h>
 
 // cursorCache's memory is guaranteed to be filled with zeros before main even runs
 static SDL_Cursor* cursorCache[SDL_SYSTEM_CURSOR_COUNT] = {0};

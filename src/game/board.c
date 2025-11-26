@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "Connect4/game/board.h"
 #include "Connect4/game/random.h"
+#include <stddef.h>
 
 C4_Board C4_Board_Create(uint8_t width, uint8_t height) {
     C4_Board newBoard;

@@ -1,4 +1,5 @@
 #include "Connect4/ui/fontManager.h"
+#include <stddef.h>
 
 #define C4_FONT_COUNT 2
 static TTF_Font* fontCache[C4_FONT_COUNT] = {0};
